@@ -1,6 +1,7 @@
+# -*- coding: utf-8 -*-
+
 import numpy as np
 import matplotlib.pyplot as plt
-import math
 
 conditions = {
         "delta_v" : 7000,
