@@ -23,8 +23,12 @@ conditions = {
 # reactants = [ [ 燃料量論モル比（化学反応式の係数）, 燃料エンタルピー, 燃料密度, 燃料分子量(kg/mol)], [ 酸化剤 ] ]
 reactants = [ [2, 0, 0.07, 0.002], [1, 0, 1.14, 0.032] ]
 
+#reactants = [ [1, 0, 0.07, 0.002], [1, 0, 1.51, 0.038] ]
+
 # products = [ [ 生成物量論モル比（化学反応式の係数）リスト], [生成物エンタルピー(J/mol)リスト ] , [生成物分子量リスト(kg/mol)]]
 products = [ [2], [-241900 ], [0.018] ]
+
+#products = [ [2], [-271200 ], [0.02] ]
 
 class Rocket(object):
     """ ２液式ロケットエンジンパラメータ計算クラス """
@@ -85,7 +89,7 @@ class Rocket(object):
         else:
             for i in range( len(self.prod_ideal_ratio) ):
                 total_prod_mol += self.FO_ratio * (self.prod_ideal_ratio[i] / self.fu_ideal_ratio)
-            return (1- self.FO_ratio * self.ox_ideal_ratio / self.fu_ideal_ratio) + total_prod_mol
+            return (1- (self.FO_ratio * self.ox_ideal_ratio) / self.fu_ideal_ratio) + total_prod_mol
 
 
     def Tf(self):
@@ -97,6 +101,7 @@ class Rocket(object):
 
         #2500K以下だと仮定
         Tf = delta_Hf / (Cp * total_mol_after_reaction) + self.conditions["T0"]
+        #return delta_Hf / (Cp * total_mol_after_reaction) + self.conditions["T0"]
         if Tf <= 2500 :
             return Tf
         else: #高温領域で生成熱が減少することの補正
@@ -120,7 +125,7 @@ class Rocket(object):
         else:
             for i in range( len(self.prod_ideal_ratio) ):
                 total_tmp += (self.FO_ratio * (self.prod_ideal_ratio[i] / self.fu_ideal_ratio))*self.m_prod[i]
-            return (1- self.FO_ratio*(self.ox_ideal_ratio/self.fu_ideal_ratio) + total_tmp) / self.total_mol_after_reaction()
+            return ((1- self.FO_ratio*(self.ox_ideal_ratio/self.fu_ideal_ratio)) * self.m_ox + total_tmp) / self.total_mol_after_reaction()
         
 
     def V_j_infinity(self):
@@ -156,7 +161,7 @@ if __name__ == "__main__":
     ratio_array = np.arange(0,6.0,0.01)
     payload_lambda_array = np.zeros(600)
     for i in np.arange(600):
-        rocket = Rocket(reactants, products, ratio_array[i], 10000000, conditions)
+        rocket = Rocket(reactants, products, ratio_array[i], 20000000, conditions)
         payload_lambda_array[i] = rocket.payload_lambda()
 
     plt.plot(ratio_array, payload_lambda_array)
