@@ -5,24 +5,24 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 conditions = {
-        "delta_v" : 7000,
-        "g" : 9.8,
-        "ml" : 2000, #payload
-        "init_a" : 2.94,
-        "rho_s" : 0.3,
-        "rho_fu" : 0.07,
-        "rho_ox" : 1.14,
-        "f_inert_s" : 0.1,
-        "H_fuel" : 0,
-        "H_ox" : 0,
-        "H_prod" : -241900,
-        "T0" : 300,
-        "yiita" : 0.96,
-        "P0" : 1020000,
-        "Pj" : 10000,
-        "gamma" : 1.4,
-        "R0" : 8314.3,
-        "Cp" : 29.1
+        "delta_v" : 7000, #到達デルタV(m/s)
+        "g" : 9.8, #重力加速度(m/s^2)
+        "ml" : 2000, #payload(kg)
+        "init_a" : 2.94, #初期加速度(m/s^2)
+        "rho_s" : 0.3, #標準推進剤混合密度(g/cm^3)
+        "rho_fu" : 0.07, #水素燃料密度
+        "rho_ox" : 1.14, #酸素密度
+        "f_inert_s" : 0.1, #標準構造質量比
+        "H_fuel" : 0, #水素エンタルピー
+        "H_ox" : 0, #酸素エンタルピー
+        "H_prod" : -241900, #水エンタルピー
+        "T0" : 300, #標準温度
+        "eta" : 0.96, #ノズル効率
+        "P0" : 1020000, # 燃焼室気圧
+        "Pj" : 10000, #大気圧
+        "gamma" : 1.4, #比熱比
+        "R0" : 8314.3, #標準気体定数(J/kg*K)
+        "Cp" : 29.1 #
         }
 class Rocket(object):
     def __init__(self, rho_fu, rho_ox, H_fu, H_ox, H_prod, ratio):
@@ -40,7 +40,7 @@ class Rocket(object):
                 self.rho_s = conditions["rho_s"]
                 self.f_inert_s = conditions["f_inert_s"]
                 self.T0 = conditions["T0"]
-                self.yiita = conditions["yiita"]
+                self.eta = conditions["eta"]
                 self.P0 = conditions["P0"]
                 self.Pj = conditions["Pj"]
                 self.gamma = conditions["gamma"]
@@ -78,7 +78,7 @@ if __name__ == "__main__":
         M_array = (ratio_array*2 + 16)/(ratio_array+1)
         R_array = rocket.R0/M_array
         Cp_array = (1.4/0.4)*R_array
-        Vj_array = (2*rocket.yiita*Cp_array*Tf_array*(1-(rocket.Pj/rocket.P0) ** 0.2857))**0.5
+        Vj_array = (2*rocket.eta*Cp_array*Tf_array*(1-(rocket.Pj/rocket.P0) ** 0.2857))**0.5
         Isp_array = Vj_array/rocket.g
         rho_array = (ratio_array*rocket.rho_fu + rocket.rho_ox)/(ratio_array + 1)
         f_inert_array = 1/((1/rocket.f_inert_s-1)*(rho_array/rocket.rho_s)+1)
