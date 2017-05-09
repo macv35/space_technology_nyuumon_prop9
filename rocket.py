@@ -92,7 +92,7 @@ if __name__ == "__main__":
 	f_inert_array = 1/((1/rocket.f_inert_s-1)*(rho_array/rocket.rho_s)+1)
 	payload_ratio = (np.exp(-rocket.delta_v/Vj_array)-f_inert_array)/(1-f_inert_array)
 	print(payload_ratio[500])
-	plt.plot(ratio_array, Isp_array)
+	plt.plot(ratio_array, payload_ratio)
 	plt.xlabel("fuel ratio")
 	plt.ylabel("payload ratio")
 	plt.show()
