@@ -101,7 +101,6 @@ class Rocket(object):
 
         #2500K以下だと仮定
         Tf = delta_Hf / (Cp * total_mol_after_reaction) + self.conditions["T0"]
-        #return delta_Hf / (Cp * total_mol_after_reaction) + self.conditions["T0"]
         if Tf <= 2500 :
             return Tf
         else: #高温領域で生成熱が減少することの補正
