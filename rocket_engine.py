@@ -114,6 +114,10 @@ class Rocket(object):
         return 1/( (1/self.conditions["f_inert_s"] -1)*rho/self.conditions["rho_s"] + 1)
 
 
+    def mixture_ratio(self):
+        """ 混合質量比MRを計算して返す """
+        return  self.m_ox / (self.m_fu*self.FO_ratio)
+
     def m_average_after_reaction(self):
         """ 反応後の平均分子量(kg/mol)を返す """
         total_tmp = 0
@@ -152,6 +156,10 @@ class Rocket(object):
         return (np.exp(-1*self.conditions["delta_v"]/(self.conditions["g"]*self.Isp() ))-f_inert) / (1-f_inert)
 
     
+    def throat_temp(self):
+        """スロート部の温度を計算して返す"""
+        return 2*self.Tf() / (self.conditions["gamma"]+1)
+
     def total_rocket_mass(self):
         """ ロケット全体の質量を計算する """
         return conditions["m_l"] / self.payload_lambda()

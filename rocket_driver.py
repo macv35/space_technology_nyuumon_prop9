@@ -8,22 +8,28 @@ import rocket_engine
 #燃焼室圧力(Pa)
 chamber_pressure = 20000000
 
-reactants_name_list = ["LH2LO2", "LH2LF2", "hydrazine"]
+reactants_name_list = ["LH2LO2", "LH2LF2", "hydrazine", "kerosene"]
 reactants_dict = {
         "LH2LO2" : [ [2, 0, 0.07, 0.002], [1, 0, 1.14, 0.032] ], #水素・酸素
         "LH2LF2" : [ [1, 0, 0.07, 0.002], [1, 0, 1.51, 0.038] ],  #水素・フッ素
-        "hydrazine" : [ [2, 50440, 1.00, 0.032], [1, -19.42, 1.43, 0.092] ]
+        "hydrazine" : [ [2, 50440, 1.00, 0.032], [1, -19.42, 1.43, 0.092] ], #ヒドラジンとN2O4
+        "kerosene" : [ [1, -353500, 0.7495, 0.17034], [18.5, 0, 1.14, 0.032]] #ケロシン（ドデカン）と酸素
         }
 
 products_dict = {
         "LH2LO2" : [ [2], [-241900 ], [0.018] ],
         "LH2LF2" : [ [2], [-271200 ], [0.02] ],
-        "hydrazine" : [ [3, 4], [0, -241900], [0.028, 0.018]]
+        "hydrazine" : [ [3, 4], [0, -241900], [0.028, 0.018]], #N2, H2O
+        "kerosene" : [ [12, 13], [-393500, -241900], [0.044, 0.018]] #CO2, H2O
         }
 
 #表示範囲
-range_minimum = 0.1
-range_max = 6.0
+range_dict = {
+        "LH2LO2" : [1, 6, 0.1],
+        "LH2LF2" : [0.5, 8, 0.1],
+        "hydrazine" : [0.5, 5, 0.5],
+        "kerosene" : [0.01, 0.2, 0.001]
+        }
 
 #初期条件
 conditions = {
@@ -56,8 +62,11 @@ if __name__ == "__main__":
     reactants = reactants_dict[reactants_name]
     products = products_dict[reactants_name]
 
-    ratio_array = np.arange(range_minimum,range_max,0.01)
-    sim_times = int( (range_max-range_minimum)/0.01 )
+    range_minimum = range_dict[reactants_name][0]
+    range_max = range_dict[reactants_name][1]
+    range_interval = range_dict[reactants_name][2]
+    ratio_array = np.arange(range_minimum,range_max,range_interval)
+    sim_times = int( (range_max-range_minimum)/range_interval )
     payload_lambda_array = np.zeros(sim_times)
 
     for i in np.arange(sim_times):
