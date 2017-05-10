@@ -29,6 +29,10 @@ range_dict = {
         "kerosene" : [0.01, 0.2, 0.001]
         }
 
+#燃焼室・タンク直径(m)
+chamber_diameter = 1
+tank_diameter = 5
+
 #初期条件
 conditions = {
         "delta_v" : 7000, #到達デルタV(m/s)
@@ -75,7 +79,25 @@ if __name__ == "__main__":
     for i in np.arange(sim_times):
         rocket = rocket_engine.Rocket(reactants, products, ratio_array[i], chamber_pressure, conditions)
         payload_lambda_array[i] = rocket.payload_lambda()
-        print(payload_lambda_array[i])
+
+    #ペイロード比最大のロケットをインスタンス化
+    lambda_max_index = np.argmax(payload_lambda_array)
+    lambda_max_ratio = np.arange(range_minimum,range_max,range_interval)[lambda_max_index]
+    lambda_max_rocket = rocket_engine.Rocket(reactants, products, lambda_max_ratio, chamber_pressure, conditions)
+
+    #アウトプット出力
+    print( "max payload ratio: ", lambda_max_rocket.payload_lambda() )
+    print( "chamber pressure: ", chamber_pressure)
+    print( "propellant type: ", reactants_name)
+    print( "F/O ratio in mole fraction: ", lambda_max_rocket.FO_ratio )
+    print( "F/O ratio in mass fraction: ", lambda_max_rocket.mixture_ratio() )
+    print( "isentropic flame temperature: ", lambda_max_rocket.Tf() )
+    print( "Isp: ", lambda_max_rocket.Isp() )
+    print( "chamber diameter: ", chamber_diameter)
+    print( "chamber length: ", lambda_max_rocket.chamber_length(chamber_diameter) )
+    print( "tank diameter: ", tank_diameter)
+    print( "tank length: ", lambda_max_rocket.tank_length(tank_diameter) )
+
 
     plt.plot(ratio_array, payload_lambda_array)
     plt.show()
