@@ -185,11 +185,11 @@ class Rocket(object):
         """ 推進剤の全質量を計算する """
         return self.total_rocket_mass()*(1-self.payload_lambda())*(1-self.f_inert())
 
-    def tank_length(self, chamber_diameter):
+    def tank_length(self, tank_diameter):
         """ タンクの直径(m)を受け取り，全体の質量からタンクの長さを計算する。全体の密度は，燃料の平均密度で近似する。"""
         mixture_ratio = self.mixture_ratio()
         rho = (mixture_ratio + 1) / (1/self.rho_fu + mixture_ratio/self.rho_ox) *1000
-        A_t = np.pi * ((chamber_diameter/2)**2)
+        A_tank = np.pi * ((tank_diameter/2)**2)
         return self.total_prop_mass() / rho / A_t
 
 

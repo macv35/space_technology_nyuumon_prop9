@@ -7,7 +7,7 @@ import sys
 import rocket_engine
 
 
-reactants_name_list = ["LH2LO2", "LH2LF2", "hydrazine", "kerosene"]
+propellant_name_list = ["LH2LO2", "LH2LF2", "hydrazine", "kerosene"]
 reactants_dict = {
         "LH2LO2" : [ [2, 0, 0.07, 0.002], [1, 0, 1.14, 0.032] ], #水素・酸素
         "LH2LF2" : [ [1, 0, 0.07, 0.002], [1, 0, 1.51, 0.038] ],  #水素・フッ素
@@ -21,6 +21,8 @@ products_dict = {
         "hydrazine" : [ [3, 4], [0, -241900], [0.028, 0.018]], #N2, H2O
         "kerosene" : [ [12, 13], [-393500, -241900], [0.044, 0.018]] #CO2, H2O
         }
+
+
 
 #表示範囲
 range_dict = {
@@ -57,22 +59,22 @@ conditions = {
 #コマンドライン引数として，燃料の名前と燃焼室圧力をとることができる（デフォルトは"LH2LO2", 20000000）
 
 if __name__ == "__main__":
-    if len(sys.argv) == 2 and sys.argv[1] in reactants_name_list:
-        reactants_name = sys.argv[1]
+    if len(sys.argv) == 2 and sys.argv[1] in propellant_name_list:
+        propellant_name = sys.argv[1]
         chamber_pressure = 20000000
-    elif len(sys.argv) == 3 and sys.argv[1] in reactants_name_list:
-        reactants_name = sys.argv[1]
+    elif len(sys.argv) == 3 and sys.argv[1] in propellant_name_list:
+        propellant_name = sys.argv[1]
         chamber_pressure = int(sys.argv[2])
     else:
-        reactants_name = "LH2LO2"
+        propellant_name = "LH2LO2"
         chamber_pressure = 20000000
 
-    reactants = reactants_dict[reactants_name]
-    products = products_dict[reactants_name]
+    reactants = reactants_dict[propellant_name]
+    products = products_dict[propellant_name]
 
-    range_minimum = range_dict[reactants_name][0]
-    range_max = range_dict[reactants_name][1]
-    range_interval = range_dict[reactants_name][2]
+    range_minimum = range_dict[propellant_name][0]
+    range_max = range_dict[propellant_name][1]
+    range_interval = range_dict[propellant_name][2]
     ratio_array = np.arange(range_minimum,range_max,range_interval)
     sim_times = int( (range_max-range_minimum)/range_interval )
     payload_lambda_array = np.zeros(sim_times)
@@ -101,10 +103,17 @@ if __name__ == "__main__":
     lambda_max_ratio = np.arange(range_minimum,range_max,range_interval)[lambda_max_index]
     lambda_max_rocket = rocket_engine.Rocket(reactants, products, lambda_max_ratio, chamber_pressure, conditions)
 
+    #シミュレーション結果出力
+    print( "*** propellant information ***")
+    print()
+    print( "reaction")
+    print()
+
+
     #アウトプット出力
     print( "max payload ratio: ", lambda_max_rocket.payload_lambda() )
     print( "chamber pressure: ", chamber_pressure)
-    print( "propellant type: ", reactants_name)
+    print( "propellant type: ", propellant_name)
     print( "F/O ratio in mole fraction: ", lambda_max_rocket.FO_ratio )
     print( "F/O ratio in mass fraction: ", lambda_max_rocket.mixture_ratio() )
     print( "isentropic flame temperature: ", lambda_max_rocket.Tf() )
