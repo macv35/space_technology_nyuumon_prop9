@@ -128,11 +128,9 @@ class Rocket(object):
 
     def V_j_infinity(self):
         """ 燃焼室による噴出速度損失を考慮しない排気速度 """
-        m_average_after_reaction = self.m_average_after_reaction()
-        Tf = self.Tf()
-        Cp = self.conditions["gamma"] * self.conditions["R0"] / (self.conditions["gamma"]-1) / m_average_after_reaction
+        Cp = self.conditions["gamma"] * self.conditions["R0"] / (self.conditions["gamma"]-1) / self.m_average_after_reaction()
         p_ratio_tmp = 1-np.power(self.conditions["Pj"]/self.chamber_pressure, (self.conditions["gamma"]-1)/self.conditions["gamma"])
-        return np.sqrt(2*self.conditions["eta"]*Cp*Tf*p_ratio_tmp)
+        return np.sqrt(2*self.conditions["eta"]*Cp*self.Tf()*p_ratio_tmp)
 
 
     def V_j(self):
