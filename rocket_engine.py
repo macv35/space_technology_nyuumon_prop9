@@ -2,7 +2,6 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-import math
 
 
 class Rocket(object):
@@ -95,7 +94,7 @@ class Rocket(object):
     def Tf(self):
         """ Tf の値を計算して返す """
 
-        Cp = self.conditions["gamma"] * self.conditions["R0"] / (conditions["gamma"]-1)
+        Cp = self.conditions["gamma"] * self.conditions["R0"] / (self.conditions["gamma"]-1)
         total_mol_after_reaction = self.total_mol_after_reaction()
         delta_Hf = self.delta_Hf()
 
@@ -130,8 +129,8 @@ class Rocket(object):
     def V_j_infinity(self):
         """ 燃焼室による噴出速度損失を考慮しない排気速度 """
         Cp = self.conditions["gamma"] * self.conditions["R0"] / ((self.conditions["gamma"]-1) * self.m_average_after_reaction() )
-        p_ratio_tmp = 1-math.pow(self.conditions["Pj"]/self.chamber_pressure, (self.conditions["gamma"]-1)/self.conditions["gamma"])
-        return math.sqrt(2*self.conditions["eta"]*Cp*self.Tf()*p_ratio_tmp)
+        p_ratio_tmp = 1-np.power(self.conditions["Pj"]/self.chamber_pressure, (self.conditions["gamma"]-1)/self.conditions["gamma"])
+        return np.sqrt(2*self.conditions["eta"]*Cp*self.Tf()*p_ratio_tmp)
 
 
     def V_j(self):
@@ -153,52 +152,11 @@ class Rocket(object):
     def payload_lambda(self):
         """ ペイロード比を計算 """
         f_inert = self.f_inert()
-        return (math.exp(-1*self.conditions["delta_v"]/(self.conditions["g"]*self.Isp() ))-f_inert) / (1-f_inert)
+        return (np.exp(-1*self.conditions["delta_v"]/(self.conditions["g"]*self.Isp() ))-f_inert) / (1-f_inert)
 
 
 
 
 # 実行部
 
-if __name__ == "__main__":
-    #初期条件
-    conditions = {
-            "delta_v" : 7000, #到達デルタV(m/s)
-            "g" : 9.8, #重力加速度(m/s^2)
-            "m_l" : 2000, #payload(kg)
-            "init_a" : 2.94, #初期加速度(m/s^2)
-            "rho_s" : 0.3, #標準推進剤混合密度(g/cm^3)
-            "f_inert_s" : 0.1, #標準構造質量比
-            "T0" : 300, #標準温度(K)
-            "eta" : 0.96, #ノズル効率
-            "Pj" : 10000, #大気圧(Pa)
-            "gamma" : 1.4, #比熱比
-            "R0" : 8.3143, #標準気体定数(J/mol*K)
-            "t_s" : 0.01, #燃焼室滞在時間(s)
-            "Tt_max" : 3000 #ノズルスロート部最大耐熱温度(K)
-            }
 
-    #燃焼室圧力
-    chamber_pressure = 20000000
-
-    #水素・酸素
-    reactants = [ [2, 0, 0.07, 0.002], [1, 0, 1.14, 0.032] ]
-    products = [ [2], [-241900 ], [0.018] ]
-
-    #水素・フッ素
-#    reactants = [ [1, 0, 0.07, 0.002], [1, 0, 1.51, 0.038] ]
-#    products = [ [2], [-271200 ], [0.02] ]
-
-    #表示範囲
-    range_minimum = 0.1
-    range_max = 6.0
-
-    ratio_array = np.arange(range_minimum,range_max,0.01)
-    sim_times = int( (range_max-range_minimum)/0.01 )
-    payload_lambda_array = np.zeros(sim_times)
-    for i in np.arange(sim_times):
-        rocket = Rocket(reactants, products, ratio_array[i], chamber_pressure, conditions)
-        payload_lambda_array[i] = rocket.payload_lambda()
-
-    plt.plot(ratio_array, payload_lambda_array)
-    plt.show()
