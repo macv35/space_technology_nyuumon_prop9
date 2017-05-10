@@ -31,7 +31,7 @@ range_dict = {
 
 #燃焼室・タンク直径(m)
 chamber_diameter = 1
-tank_diameter = 5
+tank_diameter = 4
 
 #初期条件
 conditions = {

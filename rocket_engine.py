@@ -176,16 +176,16 @@ class Rocket(object):
 
     
     def chamber_length(self, chamber_diameter):
-        """ 燃焼室の半径(m)を受け取り，燃焼室内滞在時間から燃焼室長さを求めて返す. rho_av / rho_10 = 1と近似している。 """
+        """ 燃焼室の直径(m)を受け取り，燃焼室内滞在時間から燃焼室長さを求めて返す. rho_av / rho_10 = 1と近似している。 """
         A_1 = np.pi * ( (chamber_diameter/2) ** 2)
         L_star = self.conditions["t_s"] * np.sqrt(self.conditions["gamma"]*self.conditions["R0"]*self.Tf()/self.m_average_after_reaction()) * np.power(2/(1+self.conditions["gamma"]), (self.conditions["gamma"]+1)/(2*(self.conditions["gamma"]-1)))
         return self.A_t() * L_star / A_1
 
 
     def tank_length(self, chamber_diameter):
-        """ タンクの半径(m)を受け取り，全体の質量からタンクの長さを計算する。全体の密度は，燃料の平均密度で近似する。"""
-        mixture_ratio = self.m_ox / (self.m_fu*self.FO_ratio)
-        rho = (mixture_ratio + 1) / (1/self.rho_fu + mixture_ratio/self.rho_ox)
+        """ タンクの直径(m)を受け取り，全体の質量からタンクの長さを計算する。全体の密度は，燃料の平均密度で近似する。"""
+        mixture_ratio = self.mixture_ratio()
+        rho = (mixture_ratio + 1) / (1/self.rho_fu + mixture_ratio/self.rho_ox) *1000
         A_t = np.pi * ((chamber_diameter/2)**2)
         return self.total_rocket_mass() / rho / A_t
 
