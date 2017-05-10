@@ -9,14 +9,27 @@ conditions = {
 	"ml" : 2000, #payload(kg)
 	"init_a" : 2.94, #初期加速度(m/s^2)
 	"rho_s" : 0.3, #標準推進剤混合密度(g/cm^3)
+<<<<<<< HEAD
 	"f_inert_s" : 0.1, #標準構造質量比
+=======
+	"rho_fu" : 0.07, #水素燃料密度
+	"rho_ox" : 1.14, #酸素密度
+	"f_inert_s" : 0.1, #標準構造質量比
+	"H_fuel" : 0, #水素エンタルピー
+	"H_ox" : 0, #酸素エンタルピー
+	"H_prod" : -241900, #水エンタルピー
+>>>>>>> bf5ba84026cf99938553a59e7b611df616e513d4
 	"T0" : 300, #標準温度
 	"eta" : 0.96, #ノズル効率
 	"P0" : 12000000, # 燃焼室気圧
 	"Pj" : 10000, #大気圧
 	"gamma" : 1.4, #比熱比
 	"R0" : 8314.3, #標準気体定数(J/kg*K)
+<<<<<<< HEAD
 	"Cp" : 29.1 
+=======
+	"Cp" : 29.1 #
+>>>>>>> bf5ba84026cf99938553a59e7b611df616e513d4
 	}
 
 
@@ -91,8 +104,17 @@ if __name__ == "__main__":
 	rho_array = (ratio_array*rocket.rho_fu + rocket.rho_ox)/(ratio_array + 1)
 	f_inert_array = 1/((1/rocket.f_inert_s-1)*(rho_array/rocket.rho_s)+1)
 	payload_ratio = (np.exp(-rocket.delta_v/Vj_array)-f_inert_array)/(1-f_inert_array)
+<<<<<<< HEAD
 	print(payload_ratio[500])
 	plt.plot(ratio_array, payload_ratio)
 	plt.xlabel("fuel ratio")
 	plt.ylabel("payload ratio")
 	plt.show()
+=======
+	print(payload_ratio)
+	MR_array = 32/(ratio_array*2)
+	plt.plot(ratio_array, payload_ratio)
+	plt.xlabel("fuel ratio")
+	plt.ylabel("payload ratio")
+	plt.show()
+>>>>>>> bf5ba84026cf99938553a59e7b611df616e513d4
