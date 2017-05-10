@@ -109,7 +109,7 @@ class Rocket(object):
 
     def f_inert(self):
         """ 構造質量比を計算して返す """
-        mixture_ratio = self.m_ox / (self.m_fu*self.FO_ratio)
+        mixture_ratio = self.mixture_ratio()
         rho = (mixture_ratio + 1) / (1/self.rho_fu + mixture_ratio/self.rho_ox)
         return 1/( (1/self.conditions["f_inert_s"] -1)*rho/self.conditions["rho_s"] + 1)
 
@@ -181,13 +181,16 @@ class Rocket(object):
         L_star = self.conditions["t_s"] * np.sqrt(self.conditions["gamma"]*self.conditions["R0"]*self.Tf()/self.m_average_after_reaction()) * np.power(2/(1+self.conditions["gamma"]), (self.conditions["gamma"]+1)/(2*(self.conditions["gamma"]-1)))
         return self.A_t() * L_star / A_1
 
+    def total_prop_mass(self):
+        """ 推進剤の全質量を計算する """
+        return self.total_rocket_mass()*(1-self.payload_lambda())*(1-self.f_inert())
 
     def tank_length(self, chamber_diameter):
         """ タンクの直径(m)を受け取り，全体の質量からタンクの長さを計算する。全体の密度は，燃料の平均密度で近似する。"""
         mixture_ratio = self.mixture_ratio()
         rho = (mixture_ratio + 1) / (1/self.rho_fu + mixture_ratio/self.rho_ox) *1000
         A_t = np.pi * ((chamber_diameter/2)**2)
-        return self.total_rocket_mass() / rho / A_t
+        return self.total_prop_mass() / rho / A_t
 
 
     def isentropic_flow_from_mach_to_A_ratio(self,M):

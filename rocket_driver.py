@@ -97,6 +97,10 @@ if __name__ == "__main__":
     print( "chamber length: ", lambda_max_rocket.chamber_length(chamber_diameter) )
     print( "tank diameter: ", tank_diameter)
     print( "tank length: ", lambda_max_rocket.tank_length(tank_diameter) )
+    if lambda_max_rocket.throat_temp() <= lambda_max_rocket.conditions["Tt_max"]:
+        print( "note: the throat temperature is ", lambda_max_rocket.throat_temp(), " K, so it is safe. ")
+    else:
+        print( "WARNING: the throat temperature is ", lambda_max_rocket.throat_temp(), " K, so it is dangerous. ")
 
 
     plt.plot(ratio_array, payload_lambda_array)
