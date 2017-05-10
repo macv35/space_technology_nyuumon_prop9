@@ -4,37 +4,36 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 
-conditions = {
-        "delta_v" : 7000, #到達デルタV(m/s)
-        "g" : 9.8, #重力加速度(m/s^2)
-        "m_l" : 2000, #payload(kg)
-        "init_a" : 2.94, #初期加速度(m/s^2)
-        "rho_s" : 0.3, #標準推進剤混合密度(g/cm^3)
-        "f_inert_s" : 0.1, #標準構造質量比
-        "T0" : 300, #標準温度(K)
-        "eta" : 0.96, #ノズル効率
-        "Pj" : 10000, #大気圧(Pa)
-        "gamma" : 1.4, #比熱比
-        "R0" : 8.3143, #標準気体定数(J/mol*K)
-        "t_s" : 0.01, #燃焼室滞在時間(s)
-        "Tt_max" : 3000 #ノズルスロート部最大耐熱温度(K)
-        }
-
-# reactants = [ [ 燃料量論モル比（化学反応式の係数）, 燃料エンタルピー, 燃料密度, 燃料分子量(kg/mol)], [ 酸化剤 ] ]
-reactants = [ [2, 0, 0.07, 0.002], [1, 0, 1.14, 0.032] ]
-
-#reactants = [ [1, 0, 0.07, 0.002], [1, 0, 1.51, 0.038] ]
-
-# products = [ [ 生成物量論モル比（化学反応式の係数）リスト], [生成物エンタルピー(J/mol)リスト ] , [生成物分子量リスト(kg/mol)]]
-products = [ [2], [-241900 ], [0.018] ]
-
-#products = [ [2], [-271200 ], [0.02] ]
 
 class Rocket(object):
     """ ２液式ロケットエンジンパラメータ計算クラス """
 
     def __init__(self, reactants, products, FO_ratio, chamber_pressure, conditions):
-
+        """
+        コンストラクタ。引数は，
+        reactants = [ [ 燃料量論モル比（化学反応式の係数）, 燃料エンタルピー, 燃料密度(g/cm^3), 燃料分子量(kg/mol)], [ 酸化剤についても同様に ] ]
+        液酸液水のときの例：reactants = [ [2, 0, 0.07, 0.002], [1, 0, 1.14, 0.032] ]
+        products = [ [ 生成物量論モル比（化学反応式の係数）リスト], [生成物エンタルピー(J/mol)リスト ] , [生成物分子量リスト(kg/mol)]]
+        液酸液水のときの例：products = [ [2], [-241900 ], [0.018] ]
+        FO_ratio = 酸素を1molとした時の燃料のmol比率
+        chamber_pressure = 燃焼室圧力(Pa)
+        conditions = 初期条件のリスト
+        例：conditions = {
+                "delta_v" : 7000, #到達デルタV(m/s)
+                "g" : 9.8, #重力加速度(m/s^2)
+                "m_l" : 2000, #payload(kg)
+                "init_a" : 2.94, #初期加速度(m/s^2)
+                "rho_s" : 0.3, #標準推進剤混合密度(g/cm^3)
+                "f_inert_s" : 0.1, #標準構造質量比
+                "T0" : 300, #標準温度(K)
+                "eta" : 0.96, #ノズル効率
+                "Pj" : 10000, #大気圧(Pa)
+                "gamma" : 1.4, #比熱比
+                "R0" : 8.3143, #標準気体定数(J/mol*K)
+                "t_s" : 0.01, #燃焼室滞在時間(s)
+                "Tt_max" : 3000 #ノズルスロート部最大耐熱温度(K)
+                }
+        """
         self.reactants = reactants
         # 反応物密度
         self.rho_s = conditions["rho_s"]
@@ -59,6 +58,7 @@ class Rocket(object):
         self.prod_H = products[1]
         self.m_prod = products[2]
 
+        #初期条件
         self.FO_ratio = FO_ratio
         self.chamber_pressure = chamber_pressure
         self.conditions = conditions
@@ -146,6 +146,7 @@ class Rocket(object):
 
 
     def Isp(self):
+        """ Ispを計算して返す """
         return self.V_j()/self.conditions["g"]
 
 
@@ -156,11 +157,47 @@ class Rocket(object):
 
 
 
+
+# 実行部
+
 if __name__ == "__main__":
-    ratio_array = np.arange(0,6.0,0.01)
-    payload_lambda_array = np.zeros(600)
-    for i in np.arange(600):
-        rocket = Rocket(reactants, products, ratio_array[i], 20000000, conditions)
+    #初期条件
+    conditions = {
+            "delta_v" : 7000, #到達デルタV(m/s)
+            "g" : 9.8, #重力加速度(m/s^2)
+            "m_l" : 2000, #payload(kg)
+            "init_a" : 2.94, #初期加速度(m/s^2)
+            "rho_s" : 0.3, #標準推進剤混合密度(g/cm^3)
+            "f_inert_s" : 0.1, #標準構造質量比
+            "T0" : 300, #標準温度(K)
+            "eta" : 0.96, #ノズル効率
+            "Pj" : 10000, #大気圧(Pa)
+            "gamma" : 1.4, #比熱比
+            "R0" : 8.3143, #標準気体定数(J/mol*K)
+            "t_s" : 0.01, #燃焼室滞在時間(s)
+            "Tt_max" : 3000 #ノズルスロート部最大耐熱温度(K)
+            }
+
+    #燃焼室圧力
+    chamber_pressure = 20000000
+
+    #水素・酸素
+    reactants = [ [2, 0, 0.07, 0.002], [1, 0, 1.14, 0.032] ]
+    products = [ [2], [-241900 ], [0.018] ]
+
+    #水素・フッ素
+#    reactants = [ [1, 0, 0.07, 0.002], [1, 0, 1.51, 0.038] ]
+#    products = [ [2], [-271200 ], [0.02] ]
+
+    #表示範囲
+    range_minimum = 0.1
+    range_max = 6.0
+
+    ratio_array = np.arange(range_minimum,range_max,0.01)
+    sim_times = int( (range_max-range_minimum)/0.01 )
+    payload_lambda_array = np.zeros(sim_times)
+    for i in np.arange(sim_times):
+        rocket = Rocket(reactants, products, ratio_array[i], chamber_pressure, conditions)
         payload_lambda_array[i] = rocket.payload_lambda()
 
     plt.plot(ratio_array, payload_lambda_array)
