@@ -5,18 +5,20 @@ import matplotlib.pyplot as plt
 import sys
 import rocket_engine
 
-#燃焼室圧力
-chamber_pressure = 20000000
+#燃焼室圧力(Pa)
+chamber_pressure = 12000000
 
-reactants_name_list = ["LH2LO2", "LH2LF2"]
+reactants_name_list = ["LH2LO2", "LH2LF2", "hydrazine"]
 reactants_dict = {
         "LH2LO2" : [ [2, 0, 0.07, 0.002], [1, 0, 1.14, 0.032] ], #水素・酸素
-        "LH2LF2" : [ [1, 0, 0.07, 0.002], [1, 0, 1.51, 0.038] ]  #水素・フッ素
+        "LH2LF2" : [ [1, 0, 0.07, 0.002], [1, 0, 1.51, 0.038] ],  #水素・フッ素
+        "hydrazine" : [ [2, 50440, 1.00, 0.032], [1, -19.42, 1.43, 0.092] ]
         }
 
 products_dict = {
         "LH2LO2" : [ [2], [-241900 ], [0.018] ],
-        "LH2LF2" : [ [2], [-271200 ], [0.02] ]
+        "LH2LF2" : [ [2], [-271200 ], [0.02] ],
+        "hydrazine" : [ [3, 4], [0, -241900], [0.028, 0.018]]
         }
 
 #表示範囲
@@ -57,6 +59,7 @@ if __name__ == "__main__":
     ratio_array = np.arange(range_minimum,range_max,0.01)
     sim_times = int( (range_max-range_minimum)/0.01 )
     payload_lambda_array = np.zeros(sim_times)
+
     for i in np.arange(sim_times):
         rocket = rocket_engine.Rocket(reactants, products, ratio_array[i], chamber_pressure, conditions)
         payload_lambda_array[i] = rocket.payload_lambda()

@@ -103,7 +103,7 @@ class Rocket(object):
         if Tf <= 2500 :
             return Tf
         else: #高温領域で生成熱が減少することの補正
-            return (Cp * total_mol_after_reaction + 2*delta_Hf) / (Cp * total_mol_after_reaction + 0.0004*delta_Hf)
+            return (Cp * total_mol_after_reaction * self.conditions["T0"] + 2*delta_Hf) / (Cp * total_mol_after_reaction + 0.0004*delta_Hf)
 
 
     def f_inert(self):
@@ -128,9 +128,11 @@ class Rocket(object):
 
     def V_j_infinity(self):
         """ 燃焼室による噴出速度損失を考慮しない排気速度 """
-        Cp = self.conditions["gamma"] * self.conditions["R0"] / ((self.conditions["gamma"]-1) * self.m_average_after_reaction() )
+        m_average_after_reaction = self.m_average_after_reaction()
+        Tf = self.Tf()
+        Cp = self.conditions["gamma"] * self.conditions["R0"] / (self.conditions["gamma"]-1) / m_average_after_reaction
         p_ratio_tmp = 1-np.power(self.conditions["Pj"]/self.chamber_pressure, (self.conditions["gamma"]-1)/self.conditions["gamma"])
-        return np.sqrt(2*self.conditions["eta"]*Cp*self.Tf()*p_ratio_tmp)
+        return np.sqrt(2*self.conditions["eta"]*Cp*Tf*p_ratio_tmp)
 
 
     def V_j(self):
@@ -154,9 +156,5 @@ class Rocket(object):
         f_inert = self.f_inert()
         return (np.exp(-1*self.conditions["delta_v"]/(self.conditions["g"]*self.Isp() ))-f_inert) / (1-f_inert)
 
-
-
-
-# 実行部
 
 
