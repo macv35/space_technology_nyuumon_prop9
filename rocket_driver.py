@@ -5,8 +5,6 @@ import matplotlib.pyplot as plt
 import sys
 import rocket_engine
 
-#燃焼室圧力(Pa)
-chamber_pressure = 20000000
 
 reactants_name_list = ["LH2LO2", "LH2LF2", "hydrazine", "kerosene"]
 reactants_dict = {
@@ -25,7 +23,7 @@ products_dict = {
 
 #表示範囲
 range_dict = {
-        "LH2LO2" : [1, 6, 0.1],
+        "LH2LO2" : [1, 8, 0.1],
         "LH2LF2" : [0.5, 8, 0.1],
         "hydrazine" : [0.5, 5, 0.5],
         "kerosene" : [0.01, 0.2, 0.001]
@@ -51,13 +49,18 @@ conditions = {
 
 
 #実行部分
-#コマンドライン引数として，燃料の名前をとることができる（デフォルトは"LH2LO2"）
+#コマンドライン引数として，燃料の名前と燃焼室圧力をとることができる（デフォルトは"LH2LO2", 20000000）
 
 if __name__ == "__main__":
     if len(sys.argv) == 2 and sys.argv[1] in reactants_name_list:
         reactants_name = sys.argv[1]
+        chamber_pressure = 20000000
+    elif len(sys.argv) == 3 and sys.argv[1] in reactants_name_list:
+        reactants_name = sys.argv[1]
+        chamber_pressure = int(sys.argv[2])
     else:
         reactants_name = "LH2LO2"
+        chamber_pressure = 20000000
 
     reactants = reactants_dict[reactants_name]
     products = products_dict[reactants_name]
