@@ -190,7 +190,7 @@ class Rocket(object):
         mixture_ratio = self.mixture_ratio()
         rho = (mixture_ratio + 1) / (1/self.rho_fu + mixture_ratio/self.rho_ox) *1000
         A_tank = np.pi * ((tank_diameter/2)**2)
-        return self.total_prop_mass() / rho / A_t
+        return self.total_prop_mass() / rho / A_tank
 
 
     def isentropic_flow_from_mach_to_A_ratio(self,M):
