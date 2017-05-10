@@ -6,7 +6,7 @@ import sys
 import rocket_engine
 
 #燃焼室圧力(Pa)
-chamber_pressure = 12000000
+chamber_pressure = 20000000
 
 reactants_name_list = ["LH2LO2", "LH2LF2", "hydrazine"]
 reactants_dict = {

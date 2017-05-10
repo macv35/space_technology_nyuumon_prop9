@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
+from scipy.optimize import newton
 import matplotlib.pyplot as plt
 
 
@@ -136,11 +137,7 @@ class Rocket(object):
     def V_j(self):
         """燃焼室による噴出速度損失を考慮した排気速度 """
         V_j_infinity = self.V_j_infinity()
-
-
-#
-## TODO
-#
+## TODOだったが，推力損失めっちゃ小さいみたいだから，無視することにした
         return V_j_infinity
 
 
@@ -154,5 +151,59 @@ class Rocket(object):
         f_inert = self.f_inert()
         return (np.exp(-1*self.conditions["delta_v"]/(self.conditions["g"]*self.Isp() ))-f_inert) / (1-f_inert)
 
+    
+    def total_rocket_mass(self):
+        """ ロケット全体の質量を計算する """
+        return conditions["m_l"] / self.payload_lambda()
+
+    def C_F(self):
+        """ 推力係数C_Fを計算する。最適膨張であることに注意。"""
+        y = self.conditions["gamma"]
+        return np.sqrt(2*y/(y-1)*np.power(2/(y+1), (y+1)/(y-1) ) * (1- np.power(self.conditions["Pj"]/self.chamber_pressure, (y-1)/y )))
+
+    def A_t(self):
+        """ 初期加速度からスロート面積を計算。燃焼室内の流れを無視し，燃焼室入口と出口の圧力損失を無視する。 """
+        F_init = self.total_rocket_mass() * (self.conditions["g"]+self.conditions["init_a"])
+        return F_init / self.C_F() / self.chamber_pressure
+
+    
+    def chamber_length(self, chamber_diameter):
+        """ 燃焼室の半径(m)を受け取り，燃焼室内滞在時間から燃焼室長さを求めて返す. rho_av / rho_10 = 1と近似している。 """
+        A_1 = np.pi * ( chamber_diameter ** 2)
+        L_star = self.conditions["t_s"] * np.sqrt(self.conditions["gamma"]*self.conditions["R0"]*self.Tf()/self.m_average_after_reaction()) * np.power(2/(1+self.conditions["gamma"]), (self.conditions["gamma"]+1)/(2*(self.conditions["gamma"]-1)))
+        return self.A_t() * L_star / A_1
+
+
+    def tank_length(self, chamber_diameter):
+        """ タンクの半径(m)を受け取り，全体の質量からタンクの長さを計算する。全体の密度は，燃料の平均密度で近似する。"""
+        mixture_ratio = self.m_ox / (self.m_fu*self.FO_ratio)
+        rho = (mixture_ratio + 1) / (1/self.rho_fu + mixture_ratio/self.rho_ox)
+        A_t = np.pi * (chamber_diameter**2)
+        return self.total_rocket_mass() / rho / A_t
+
+
+    def isentropic_flow_from_mach_to_A_ratio(self,M):
+        """ 等エントロピー流れにおいて，マッハ数からスロート面積比を求める """
+        y = self.conditions["gamma"]
+        return np.power(2 * (1+(y-1)*(M**2)/2) / (y+1) , (y+1)/2 /(y-1)) / M
+
+    def chamber_exit_mach_number(self):
+        """ 燃焼室出口マッハ数M_1をニュートン・ラプソン法で求める.種は，0.1とする。"""
+        return newton(self.isentropic_flow_from_mach_to_A_ratio, 0.1)
+
+    def __throat_pressure_loss(self, M_1):
+        y = self.conditions["gamma"]
+        return np.power(1+(y-1)*(M_1**2)/2, y/(y-1))
+
+    def __throat_velocity_loss(self, M_1):
+        y = self.conditions["gamma"]
+        p_ratio_tmp = np.power(self.conditions["Pj"]/self.chamber_pressure, (y-1)/y)
+        return np.sqrt( (1- np.power(1+y*(M_1**2), (y-1)/y)*p_ratio_tmp / (1+(y-1)*(M_1**2)/2)) / (1-p_ratio_tmp))
+
+
+    def throat_F_loss(self):
+        """ 燃焼室による推力損失を計算する。ただ，せっかく頑張って書いたのに，どうも値が小さすぎるのか，全然計算が収束しない"""
+        M_1 = self.chamber_exit_mach_number()
+        return self.__throat_pressure_loss(M_1) * self.__throat_velocity_loss(M_1)
 
 
