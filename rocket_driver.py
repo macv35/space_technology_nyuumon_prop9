@@ -128,7 +128,19 @@ if __name__ == "__main__":
 
     #初期条件出力
     print( "*** initial condition ***" )
-    print( conditions )
+    print( "target delta V in (m/s): ", conditions["delta_v"])
+    print( "accelaration of gravity in (m/s^2): ", conditions["g"])
+    print( "payload mass in (kg): ", conditions["m_l"])
+    print( "initial accelaration in (G): ", conditions["init_a"]/conditions["g"])
+    print( "standard propellant mixture density in (g/cm^3): ", conditions["rho_s"])
+    print( "standard structure mass ratio: ", conditions["f_inert_s"])
+    print( "Standard of temperature in (K): ", conditions["T0"])
+    print( "nozzle efficiency: ", conditions["eta"])
+    print( "atmosphere pressure in (Pa): ", conditions["Pj"])
+    print( "specific heat ratio: ", conditions["gamma"])
+    print( "standard gas constant in (J/mol*K): ", conditions["R0"])
+    print( "stay time in chamber in (s): ", conditions["t_s"])
+    print( "maximum heatresistant temperature at throat in (K): ", conditions["Tt_max"])
     print()
 
     #アウトプット出力
