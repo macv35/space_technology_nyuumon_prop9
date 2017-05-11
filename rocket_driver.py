@@ -7,7 +7,7 @@ import sys
 import rocket_engine
 
 
-propellant_name_list = ["LH2LO2", "LH2LF2", "hydrazine_N2O4", "kerosene", "LN2H4LHNO3", "ammonia", "hydrazine"]
+propellant_name_list = ["LH2LO2", "LH2LF2", "hydrazine_N2O4", "kerosene", "LN2H4LHNO3", "ammonia", "hydrazine", "Al_ammonium_perchlorate",]
 reactants_dict = {
         "LH2LO2" : [ [2, 0, 0.07, 0.002], [1, 0, 1.14, 0.032] ], #水素・酸素
         "LH2LF2" : [ [1, 0, 0.07, 0.002], [1, 0, 1.51, 0.038] ],  #水素・フッ素
@@ -15,7 +15,8 @@ reactants_dict = {
         "kerosene" : [ [1, -353500, 0.7495, 0.17034], [18.5, 0, 1.14, 0.032]], #ケロシン（ドデカン）と酸素
         "LN2H4LHNO3" : [ [5, 50440, 1.00, 0.032], [4, -174280, 1.50, 0.063] ],
         "ammonia" : [ [4, -71700, 0.60, 0.017], [3, 0, 1.14, 0.032]],
-        "hydrazine": [[1, 50440, 1.00, 0.032],[1, 0, 1.14, 0.032]]
+        "hydrazine": [[1, 50440, 1.00, 0.032],[1, 0, 1.14, 0.032]],
+        "Al_ammonium_perchlorate" :[[10, 0, 2.7 ,0.027],[6,-29040,1.95,0.11749]],
         }
 reactants_name_dict = {
         "LH2LO2" : ["H2", "O2"],
@@ -24,7 +25,8 @@ reactants_name_dict = {
         "kerosene" : ["C12H26", "O2" ],
         "LN2H4LHNO3" : ["N2H4", "HNO3"],
         "ammonia": ["NH3", "O2"],
-        "hydrazine":["N2H4","O2"]
+        "hydrazine":["N2H4","O2"],
+        "Al_ammonium_perchlorate":["Al","NH4ClO4"],
         }
 
 products_dict = {
@@ -34,7 +36,8 @@ products_dict = {
         "kerosene" : [ [12, 13], [-393500, -241900], [0.044, 0.018]], #CO2, H2O
         "LN2H4LHNO3" : [ [7, 12], [0,-241900],[0.028,0.018]],
         "ammonia": [[2,6],[0,-241900],[0.028,0.018]],
-        "hydrazine":[[1,2],[0,-241900],[0.028,0.018]]
+        "hydrazine":[[1,2],[0,-241900],[0.028,0.018]],
+        "Al_ammonium_perchlorate":[[4,2,12,3],[-1675700,-704200,-241900,0],[0.10196,0.133341,0.018,0.028]],
         }
 products_name_dict = {
         "LH2LO2" : ["H2O"],
@@ -43,7 +46,8 @@ products_name_dict = {
         "kerosene" : ["CO2", "H2O" ],
         "LN2H4LHNO3": ["N2", "H2O"],
         "ammonia":["N2","H2O"],
-        "hydrazine":["N2","H2O"]
+        "hydrazine":["N2","H2O"],
+        "Al_ammonium_perchlorate":["Al2O3","AlCl3","H20","N2"],
         }
 
 #表示範囲
@@ -55,6 +59,7 @@ range_dict = {
         "LN2H4LHNO3" : [0.5, 5, 0.01],
         "ammonia":[1, 2, 0.01],
         "hydrazine" : [0.5, 2, 0.01],
+        "Al_ammonium_perchlorate":[2, 11, 0.01],
         }
 
 #燃焼室・タンク直径(m)
