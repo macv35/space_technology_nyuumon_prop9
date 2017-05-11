@@ -14,6 +14,12 @@ reactants_dict = {
         "hydrazine" : [ [2, 50440, 1.00, 0.032], [1, -19.42, 1.43, 0.092] ], #ヒドラジンとN2O4
         "kerosene" : [ [1, -353500, 0.7495, 0.17034], [18.5, 0, 1.14, 0.032]] #ケロシン（ドデカン）と酸素
         }
+reactants_name_dict = {
+        "LH2LO2" : ["H2", "O2"],
+        "LH2LF2" : ["H2", "F2"],
+        "hydrazine" : ["N2H4", "N2O4"],
+        "kerosene" : ["C12H26", "O2" ]
+        }
 
 products_dict = {
         "LH2LO2" : [ [2], [-241900 ], [0.018] ],
@@ -21,8 +27,12 @@ products_dict = {
         "hydrazine" : [ [3, 4], [0, -241900], [0.028, 0.018]], #N2, H2O
         "kerosene" : [ [12, 13], [-393500, -241900], [0.044, 0.018]] #CO2, H2O
         }
-
-
+products_name_dict = {
+        "LH2LO2" : ["H2O"],
+        "LH2LF2" : ["HF"],
+        "hydrazine" : ["N2", "H2O"],
+        "kerosene" : ["CO2", "H2O" ]
+        }
 
 #表示範囲
 range_dict = {
@@ -105,12 +115,24 @@ if __name__ == "__main__":
 
     #シミュレーション結果出力
     print( "*** propellant information ***")
-    print()
     print( "reaction")
+    print( reactants_dict[propellant_name][0][0], reactants_name_dict[propellant_name][0], "+", reactants_dict[propellant_name][1][0], reactants_name_dict[propellant_name][1] )
+    print("->")
+    for i in range( len(products_name_dict[propellant_name]) ):
+        if i == 0:
+            print( products_dict[propellant_name][0][i], products_name_dict[propellant_name][i], )
+        else:
+            print("+", )
+            print( products_dict[propellant_name][0][i], products_name_dict[propellant_name][i], )
     print()
 
+    #初期条件出力
+    print( "*** initial condition ***" )
+    print( conditions )
+    print()
 
     #アウトプット出力
+    print( "*** simulation output ***" )
     print( "max payload ratio: ", lambda_max_rocket.payload_lambda() )
     print( "chamber pressure: ", chamber_pressure)
     print( "propellant type: ", propellant_name)
@@ -127,7 +149,7 @@ if __name__ == "__main__":
     else:
         print( "WARNING: the throat temperature is ", lambda_max_rocket.throat_temp(), " K, so it is dangerous. ")
 
-    
+    #グラフ出力
     G = gs.GridSpec(3,3)
     axes1 = plt.subplot(G[:,0])
     plt.plot(ratio_array, payload_lambda_array)
