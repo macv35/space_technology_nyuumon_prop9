@@ -83,22 +83,89 @@ conditions = {
         "Tt_max" : 3000 #ノズルスロート部最大耐熱温度(K)
         }
 
+def conditions_output():
+    #初期条件出力
+    print( "*** initial condition ***" )
+    print( "target delta V in (m/s): ", conditions["delta_v"])
+    print( "accelaration of gravity in (m/s^2): ", conditions["g"])
+    print( "payload mass in (kg): ", conditions["m_l"])
+    print( "initial accelaration in (G): ", conditions["init_a"]/conditions["g"])
+    print( "standard propellant mixture density in (g/cm^3): ", conditions["rho_s"])
+    print( "standard structure mass ratio: ", conditions["f_inert_s"])
+    print( "Standard of temperature in (K): ", conditions["T0"])
+    print( "nozzle efficiency: ", conditions["eta"])
+    print( "atmosphere pressure in (Pa): ", conditions["Pj"])
+    print( "specific heat ratio: ", conditions["gamma"])
+    print( "standard gas constant in (J/mol*K): ", conditions["R0"])
+    print( "stay time in chamber in (s): ", conditions["t_s"])
+    print( "maximum heatresistant temperature at throat in (K): ", conditions["Tt_max"])
+    print()
 
 
-#実行部分
-#コマンドライン引数として，燃料の名前と燃焼室圧力をとることができる（デフォルトは"LH2LO2", 20000000）
+def output(lambda_max_rocket, chamber_pressure, propellant_name, chamber_diameter,tank_diameter):
+    """シミュレーション結果出力"""
+    print( "*** propellant information ***")
+    print( "reaction")
 
-if __name__ == "__main__":
-    if len(sys.argv) == 2 and sys.argv[1] in propellant_name_list:
-        propellant_name = sys.argv[1]
-        chamber_pressure = 20000000
-    elif len(sys.argv) == 3 and sys.argv[1] in propellant_name_list:
-        propellant_name = sys.argv[1]
-        chamber_pressure = int(sys.argv[2])
+    reaction_equation =  str(reactants_dict[propellant_name][0][0])+ " " + reactants_name_dict[propellant_name][0] + " + " + str(reactants_dict[propellant_name][1][0]) +" "+ reactants_name_dict[propellant_name][1] + "  ->  "
+    for i in range( len(products_name_dict[propellant_name]) ):
+        if i == 0:
+            reaction_equation += str(products_dict[propellant_name][0][i]) +" "+ products_name_dict[propellant_name][i]
+        else:
+            reaction_equation += " + " + str(products_dict[propellant_name][0][i]) + " "+ products_name_dict[propellant_name][i]
+    print( reaction_equation )
+    print()
+
+    conditions_output()
+
+    #アウトプット出力
+    print( "*** simulation output ***" )
+    print( "max payload ratio: ", lambda_max_rocket.payload_lambda() )
+    print( "chamber pressure: ", chamber_pressure)
+    print( "propellant type: ", propellant_name)
+    print( "F/O ratio in mole fraction: ", lambda_max_rocket.FO_ratio )
+    print( "F/O ratio in mass fraction: ", lambda_max_rocket.mixture_ratio() )
+    print( "isentropic flame temperature: ", lambda_max_rocket.Tf() )
+    print( "Isp: ", lambda_max_rocket.Isp() )
+    print( "chamber diameter: ", chamber_diameter)
+    print( "chamber length: ", lambda_max_rocket.chamber_length(chamber_diameter) )
+    print( "tank diameter: ", tank_diameter)
+    print( "tank length: ", lambda_max_rocket.tank_length(tank_diameter) )
+    if lambda_max_rocket.throat_temp() <= lambda_max_rocket.conditions["Tt_max"]:
+        print( "note: the throat temperature is ", lambda_max_rocket.throat_temp(), " K, so it is safe. ")
     else:
-        propellant_name = "LH2LO2"
-        chamber_pressure = 20000000
+        print( "WARNING: the throat temperature is ", lambda_max_rocket.throat_temp(), " K, so it is dangerous. ")
 
+
+def draw_graph_one_type(propellant_name,ratio_array, payload_lambda_array, Isp_array,MR_array, Tf_array):
+    """推進剤の種類が一種類の時に，グラフを描画する"""
+    G = gs.GridSpec(3,3)
+    axes1 = plt.subplot(G[:,0])
+    plt.plot(ratio_array, payload_lambda_array)
+    plt.xlabel('fuel/oxidizer mol ratio')
+    plt.ylabel('payload ratio')
+    plt.style.use('ggplot')
+    axes2 = plt.subplot(G[0,1:3])
+    plt.plot(ratio_array, Isp_array)
+    plt.xlabel('fuel/oxidizer mol ratio')
+    plt.ylabel('Isp[sec]')
+    plt.style.use('ggplot')
+    axes3 = plt.subplot(G[1,1:3])
+    plt.plot(ratio_array, MR_array)
+    plt.xlabel('fuel/oxidizer mol ratio')
+    plt.ylabel('mixture ratio')
+    plt.style.use('ggplot')
+    axes4 = plt.subplot(G[2,1:3])
+    plt.plot(ratio_array, Tf_array)
+    plt.xlabel('fuel/oxidizer mol ratio')
+    plt.ylabel('Tf[K]')
+    plt.style.use('ggplot')
+    plt.subplots_adjust(wspace=1, hspace=1)
+    plt.show()
+    
+
+def show_result_for_one_type(propellant_name, chamber_pressure):
+    """ 推進剤が一種類の時に結果を表示する"""
     reactants = reactants_dict[propellant_name]
     products = products_dict[propellant_name]
 
@@ -132,76 +199,44 @@ if __name__ == "__main__":
     lambda_max_index = np.argmax(payload_lambda_array)
     lambda_max_ratio = np.arange(range_minimum,range_max,range_interval)[lambda_max_index]
     lambda_max_rocket = rocket_engine.Rocket(reactants, products, lambda_max_ratio, chamber_pressure, conditions)
-
-    #シミュレーション結果出力
-    print( "*** propellant information ***")
-    print( "reaction")
-
-    reaction_equation =  str(reactants_dict[propellant_name][0][0])+ " " + reactants_name_dict[propellant_name][0] + " + " + str(reactants_dict[propellant_name][1][0]) +" "+ reactants_name_dict[propellant_name][1] + "  ->  "
-    for i in range( len(products_name_dict[propellant_name]) ):
-        if i == 0:
-            reaction_equation += str(products_dict[propellant_name][0][i]) +" "+ products_name_dict[propellant_name][i]
-        else:
-            reaction_equation += " + " + str(products_dict[propellant_name][0][i]) + " "+ products_name_dict[propellant_name][i]
-    print( reaction_equation )
-    print()
-
-    #初期条件出力
-    print( "*** initial condition ***" )
-    print( "target delta V in (m/s): ", conditions["delta_v"])
-    print( "accelaration of gravity in (m/s^2): ", conditions["g"])
-    print( "payload mass in (kg): ", conditions["m_l"])
-    print( "initial accelaration in (G): ", conditions["init_a"]/conditions["g"])
-    print( "standard propellant mixture density in (g/cm^3): ", conditions["rho_s"])
-    print( "standard structure mass ratio: ", conditions["f_inert_s"])
-    print( "Standard of temperature in (K): ", conditions["T0"])
-    print( "nozzle efficiency: ", conditions["eta"])
-    print( "atmosphere pressure in (Pa): ", conditions["Pj"])
-    print( "specific heat ratio: ", conditions["gamma"])
-    print( "standard gas constant in (J/mol*K): ", conditions["R0"])
-    print( "stay time in chamber in (s): ", conditions["t_s"])
-    print( "maximum heatresistant temperature at throat in (K): ", conditions["Tt_max"])
-    print()
-
-    #アウトプット出力
-    print( "*** simulation output ***" )
-    print( "max payload ratio: ", lambda_max_rocket.payload_lambda() )
-    print( "chamber pressure: ", chamber_pressure)
-    print( "propellant type: ", propellant_name)
-    print( "F/O ratio in mole fraction: ", lambda_max_rocket.FO_ratio )
-    print( "F/O ratio in mass fraction: ", lambda_max_rocket.mixture_ratio() )
-    print( "isentropic flame temperature: ", lambda_max_rocket.Tf() )
-    print( "Isp: ", lambda_max_rocket.Isp() )
-    print( "chamber diameter: ", chamber_diameter)
-    print( "chamber length: ", lambda_max_rocket.chamber_length(chamber_diameter) )
-    print( "tank diameter: ", tank_diameter)
-    print( "tank length: ", lambda_max_rocket.tank_length(tank_diameter) )
-    if lambda_max_rocket.throat_temp() <= lambda_max_rocket.conditions["Tt_max"]:
-        print( "note: the throat temperature is ", lambda_max_rocket.throat_temp(), " K, so it is safe. ")
-    else:
-        print( "WARNING: the throat temperature is ", lambda_max_rocket.throat_temp(), " K, so it is dangerous. ")
-
+    
+    #結果出力
+    output(lambda_max_rocket, chamber_pressure, propellant_name, chamber_diameter, tank_diameter)
     #グラフ出力
-    G = gs.GridSpec(3,3)
-    axes1 = plt.subplot(G[:,0])
-    plt.plot(ratio_array, payload_lambda_array)
-    plt.xlabel('fuel/oxidizer mol ratio')
-    plt.ylabel('payload ratio')
-    plt.style.use('ggplot')
-    axes2 = plt.subplot(G[0,1:3])
-    plt.plot(ratio_array, Isp_array)
-    plt.xlabel('fuel/oxidizer mol ratio')
-    plt.ylabel('Isp[sec]')
-    plt.style.use('ggplot')
-    axes3 = plt.subplot(G[1,1:3])
-    plt.plot(ratio_array, MR_array)
-    plt.xlabel('fuel/oxidizer mol ratio')
-    plt.ylabel('mixture ratio')
-    plt.style.use('ggplot')
-    axes4 = plt.subplot(G[2,1:3])
-    plt.plot(ratio_array, Tf_array)
-    plt.xlabel('fuel/oxidizer mol ratio')
-    plt.ylabel('Tf[K]')
-    plt.style.use('ggplot')
-    plt.subplots_adjust(wspace=1, hspace=1)
-    plt.show()
+    draw_graph_one_type(propellant_name,ratio_array, payload_lambda_array, Isp_array,MR_array, Tf_array)
+
+
+def show_result_all(chamber_pressure):
+    """全種類の推進剤について計算して表示する"""
+
+    return 0
+
+
+def main(argv):
+    """ main関数。主にコマンドライン引数を処理する"""
+    if len(argv) == 2 and argv[1] in propellant_name_list:
+        propellant_name = argv[1]
+        chamber_pressure = 20000000
+    elif len(argv) == 3 and argv[1] in propellant_name_list:
+        propellant_name = argv[1]
+        chamber_pressure = int(argv[2])
+    elif len(argv) == 2 and argv[1] == "all":
+        propellant_name = argv[1]
+        chamber_pressure = 20000000
+    else:
+        propellant_name = "LH2LO2"
+        chamber_pressure = 20000000
+    
+    #結果の計算及び表示
+    if propellant_name in propellant_name_list:
+        show_result_for_one_type(propellant_name,chamber_pressure)
+    elif propellant_name == "all":
+        show_result_all(chamber_pressure)
+
+    return 0
+
+#実行部分
+#コマンドライン引数として，燃料の名前と燃焼室圧力をとることができる（デフォルトは"LH2LO2", 20000000）
+if __name__ == "__main__":
+    main(sys.argv)
+
