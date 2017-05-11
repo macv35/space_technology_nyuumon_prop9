@@ -116,14 +116,14 @@ if __name__ == "__main__":
     #シミュレーション結果出力
     print( "*** propellant information ***")
     print( "reaction")
-    print( reactants_dict[propellant_name][0][0], reactants_name_dict[propellant_name][0], "+", reactants_dict[propellant_name][1][0], reactants_name_dict[propellant_name][1] )
-    print("->")
+
+    reaction_equation =  str(reactants_dict[propellant_name][0][0])+ " " + reactants_name_dict[propellant_name][0] + " + " + str(reactants_dict[propellant_name][1][0]) +" "+ reactants_name_dict[propellant_name][1] + "  ->  "
     for i in range( len(products_name_dict[propellant_name]) ):
         if i == 0:
-            print( products_dict[propellant_name][0][i], products_name_dict[propellant_name][i], )
+            reaction_equation += str(products_dict[propellant_name][0][i]) +" "+ products_name_dict[propellant_name][i]
         else:
-            print("+", )
-            print( products_dict[propellant_name][0][i], products_name_dict[propellant_name][i], )
+            reaction_equation += " + " + str(products_dict[propellant_name][0][i]) + " "+ products_name_dict[propellant_name][i]
+    print( reaction_equation )
     print()
 
     #初期条件出力
