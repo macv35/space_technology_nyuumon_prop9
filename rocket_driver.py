@@ -7,49 +7,54 @@ import sys
 import rocket_engine
 
 
-propellant_name_list = ["LH2LO2", "LH2LF2", "hydrazine", "kerosene", "LN2H4LHNO3", "ammonia"]
+propellant_name_list = ["LH2LO2", "LH2LF2", "hydrazine_N2O4", "kerosene", "LN2H4LHNO3", "ammonia", "hydrazine"]
 reactants_dict = {
         "LH2LO2" : [ [2, 0, 0.07, 0.002], [1, 0, 1.14, 0.032] ], #水素・酸素
         "LH2LF2" : [ [1, 0, 0.07, 0.002], [1, 0, 1.51, 0.038] ],  #水素・フッ素
-        "hydrazine" : [ [2, 50440, 1.00, 0.032], [1, -19.42, 1.43, 0.092] ], #ヒドラジンとN2O4
+        "hydrazine_N2O4" : [ [2, 50440, 1.00, 0.032], [1, -19.42, 1.43, 0.092] ], #ヒドラジンとN2O4
         "kerosene" : [ [1, -353500, 0.7495, 0.17034], [18.5, 0, 1.14, 0.032]], #ケロシン（ドデカン）と酸素
         "LN2H4LHNO3" : [ [5, 50440, 1.00, 0.032], [4, -174280, 1.50, 0.063] ],
-        "ammonia" : [ [4, -71700, 0.60, 0.017], [3, 0, 1.14, 0.032]]
+        "ammonia" : [ [4, -71700, 0.60, 0.017], [3, 0, 1.14, 0.032]],
+        "hydrazine": [[1, 50440, 1.00, 0.032],[1, 0, 1.14, 0.032]]
         }
 reactants_name_dict = {
         "LH2LO2" : ["H2", "O2"],
         "LH2LF2" : ["H2", "F2"],
-        "hydrazine" : ["N2H4", "N2O4"],
+        "hydrazine_N2O4" : ["N2H4", "N2O4"],
         "kerosene" : ["C12H26", "O2" ],
         "LN2H4LHNO3" : ["N2H4", "HNO3"],
-        "ammonia": ["NH3", "O2"]
+        "ammonia": ["NH3", "O2"],
+        "hydrazine":["N2H4","O2"]
         }
 
 products_dict = {
         "LH2LO2" : [ [2], [-241900 ], [0.018] ],
         "LH2LF2" : [ [2], [-271200 ], [0.02] ],
-        "hydrazine" : [ [3, 4], [0, -241900], [0.028, 0.018]], #N2, H2O
+        "hydrazine_N2O4" : [ [3, 4], [0, -241900], [0.028, 0.018]], #N2, H2O
         "kerosene" : [ [12, 13], [-393500, -241900], [0.044, 0.018]], #CO2, H2O
         "LN2H4LHNO3" : [ [7, 12], [0,-241900],[0.028,0.018]],
-        "ammonia": [[2,6],[0,-241900],[0.028,0.018]]
+        "ammonia": [[2,6],[0,-241900],[0.028,0.018]],
+        "hydrazine":[[1,2],[0,-241900],[0.028,0.018]]
         }
 products_name_dict = {
         "LH2LO2" : ["H2O"],
         "LH2LF2" : ["HF"],
-        "hydrazine" : ["N2", "H2O"],
+        "hydrazine_N2O4" : ["N2", "H2O"],
         "kerosene" : ["CO2", "H2O" ],
         "LN2H4LHNO3": ["N2", "H2O"],
-        "ammonia":["N2","H2O"]
+        "ammonia":["N2","H2O"],
+        "hydrazine":["N2","H2O"]
         }
 
 #表示範囲
 range_dict = {
-        "LH2LO2" : [1, 8, 0.1],
-        "LH2LF2" : [0.5, 8, 0.1],
-        "hydrazine" : [0.5, 5, 0.5],
+        "LH2LO2" : [1, 8, 0.01],
+        "LH2LF2" : [0.5, 8, 0.01],
+        "hydrazine_N2O4" : [0.5, 5, 0.01],
         "kerosene" : [0.01, 0.2, 0.001],
-        "LN2H4LHNO3" : [0.5, 5, 0.5],
-        "ammonia":[1, 2, 0.1]
+        "LN2H4LHNO3" : [0.5, 5, 0.01],
+        "ammonia":[1, 2, 0.01],
+        "hydrazine" : [0.5, 2, 0.01],
         }
 
 #燃焼室・タンク直径(m)
