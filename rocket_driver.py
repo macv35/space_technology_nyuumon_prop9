@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gs
 import sys
+from argparse import ArgumentParser
 import rocket_engine
 
 
@@ -136,6 +137,40 @@ def output(lambda_max_rocket, chamber_pressure, propellant_name, chamber_diamete
     else:
         print( "WARNING: the throat temperature is ", lambda_max_rocket.throat_temp(), " K, so it is dangerous. ")
 
+def output_tex(lambda_max_rocket, chamber_pressure, propellant_name, chamber_diameter,tank_diameter):
+    """シミュレーション結果出力"""
+    print( "*** propellant information ***")
+    print( "reaction")
+
+    reaction_equation =  str(reactants_dict[propellant_name][0][0])+ " " + reactants_name_dict[propellant_name][0] + " + " + str(reactants_dict[propellant_name][1][0]) +" "+ reactants_name_dict[propellant_name][1] + "  ->  "
+    for i in range( len(products_name_dict[propellant_name]) ):
+        if i == 0:
+            reaction_equation += str(products_dict[propellant_name][0][i]) +" "+ products_name_dict[propellant_name][i]
+        else:
+            reaction_equation += " + " + str(products_dict[propellant_name][0][i]) + " "+ products_name_dict[propellant_name][i]
+    print( reaction_equation )
+    print()
+
+    conditions_output()
+
+    #アウトプット出力
+    print( "*** simulation output ***" )
+    print( "1. ¥=ペイロード比 ~~~~ ¥= $¥Lambda = ", lambda_max_rocket.payload_lambda(),"$¥¥" )
+    print( "2. ¥>燃焼室圧力 ¥> $P = ", chamber_pressure," ~¥rm{Pa}$¥¥")
+    #    print( "propellant type: ", propellant_name)
+    #    print( "F/O ratio in mole fraction: ", lambda_max_rocket.FO_ratio )
+    print( "3. ¥>質量混合比 ¥>$¥rm{MR}=", lambda_max_rocket.mixture_ratio(),"$¥¥" )
+    print( "4. ¥>断熱火炎温度 ¥>$T_f = ", lambda_max_rocket.Tf() ,"~ ¥rm{K}$¥¥")
+    print( "5. ¥>比推力 ¥>$I_{¥rm{sp}}= ", lambda_max_rocket.Isp(), "~¥rm{s}$¥¥")
+    print( "6. ¥>燃焼室径¥>$R_c = ", chamber_diameter," ~ ¥rm{m}$¥¥")
+    print( "¥>燃焼室長さ¥>$L_c = ", lambda_max_rocket.chamber_length(chamber_diameter) ," ~¥rm{m}$¥¥")
+    print( "7. ¥>タンク径¥>$R_{¥rm{tank}} = ", tank_diameter," ~ ¥rm{m}$¥¥")
+    print( "¥>タンク長さ¥>$L_{¥rm{tank}} = ", lambda_max_rocket.tank_length(tank_diameter) ," ~ ¥rm{m}$¥¥")
+    if lambda_max_rocket.throat_temp() <= lambda_max_rocket.conditions["Tt_max"]:
+        print( "note: the throat temperature is ", lambda_max_rocket.throat_temp(), " K, so it is safe. ")
+    else:
+        print( "WARNING: the throat temperature is ", lambda_max_rocket.throat_temp(), " K, so it is dangerous. ")
+
 
 def draw_graph_one_type(propellant_name,ratio_array, payload_lambda_array, Isp_array,MR_array, Tf_array):
     """推進剤の種類が一種類の時に，グラフを描画する"""
@@ -164,7 +199,7 @@ def draw_graph_one_type(propellant_name,ratio_array, payload_lambda_array, Isp_a
     plt.show()
     
 
-def show_result_for_one_type(propellant_name, chamber_pressure):
+def show_result_for_one_type(propellant_name, chamber_pressure, is_tex):
     """ 推進剤が一種類の時に結果を表示する"""
     reactants = reactants_dict[propellant_name]
     products = products_dict[propellant_name]
@@ -201,39 +236,71 @@ def show_result_for_one_type(propellant_name, chamber_pressure):
     lambda_max_rocket = rocket_engine.Rocket(reactants, products, lambda_max_ratio, chamber_pressure, conditions)
     
     #結果出力
-    output(lambda_max_rocket, chamber_pressure, propellant_name, chamber_diameter, tank_diameter)
+    if is_tex:
+        output_tex(lambda_max_rocket, chamber_pressure, propellant_name, chamber_diameter, tank_diameter)
+    else:
+        output(lambda_max_rocket, chamber_pressure, propellant_name, chamber_diameter, tank_diameter)
     #グラフ出力
     draw_graph_one_type(propellant_name,ratio_array, payload_lambda_array, Isp_array,MR_array, Tf_array)
 
 
-def show_result_all(chamber_pressure):
+def show_result_all(chamber_pressure, is_tex):
     """全種類の推進剤について計算して表示する"""
-
+    print("this function will be implimented in future update")
     return 0
 
+def parser():
+    """ コマンドライン引数のパーザー"""
+    usage = "Usage: python {} [--help] [-propellant_name <text>] [--chamber_pressure <number>] [--chamber_diameter <number>] [--tank_diameter <number>] [--tex]".format(__file__)
+    argparser = ArgumentParser(usage=usage)
+    argparser.add_argument("-n","--propellant_name", dest="propellant_name", type=str, default="LH2LO2", help="specify propellant name. available: "+str(propellant_name_list))
+    argparser.add_argument("-cp", "--chamber_pressure", dest="chamber_pressure", type=int, default=20000000, help="set chamber diameter in (m)")
+    argparser.add_argument("-cd","--chamber_diameter", dest="chamber_diameter", type=int, default=1, help="set chamber diameter in (m)")
+    argparser.add_argument("-td", "--tank_diameter", dest="tank_diameter", type=int, default=3, help="set tank diameter in (m)")
+    argparser.add_argument("-t","--tex", dest="tex", action="store_true", help="output tex like result for report")
+
+    args = argparser.parse_args()
+
+    propellant_name = args.propellant_name
+    chamber_pressure = args.chamber_pressure
+    global chamber_diameter
+    global tank_diameter
+    chamber_diameter = args.chamber_diameter
+    tank_diameter = args.tank_diameter
+    is_tex = args.tex
+
+
+    if propellant_name in propellant_name_list:
+        show_result_for_one_type(propellant_name,chamber_pressure,is_tex)
+    elif propellant_name == "all":
+        show_result_all(chamber_pressure, is_tex)
+
+    return 0
 
 def main(argv):
     """ main関数。主にコマンドライン引数を処理する"""
-    if len(argv) == 2 and argv[1] in propellant_name_list:
-        propellant_name = argv[1]
-        chamber_pressure = 20000000
-    elif len(argv) == 3 and argv[1] in propellant_name_list:
-        propellant_name = argv[1]
-        chamber_pressure = int(argv[2])
-    elif len(argv) == 2 and argv[1] == "all":
-        propellant_name = argv[1]
-        chamber_pressure = 20000000
-    else:
-        propellant_name = "LH2LO2"
-        chamber_pressure = 20000000
+#    if len(argv) == 2 and argv[1] in propellant_name_list:
+#        propellant_name = argv[1]
+#        chamber_pressure = 20000000
+#    elif len(argv) == 3 and argv[1] in propellant_name_list:
+#        propellant_name = argv[1]
+#        chamber_pressure = int(argv[2])
+#    elif len(argv) == 2 and argv[1] == "all":
+#        propellant_name = argv[1]
+#        chamber_pressure = 20000000
+#    else:
+#        propellant_name = "LH2LO2"
+#        chamber_pressure = 20000000
+#
+#    #結果の計算及び表示
+#    if propellant_name in propellant_name_list:
+#        show_result_for_one_type(propellant_name,chamber_pressure)
+#    elif propellant_name == "all":
+#        show_result_all(chamber_pressure)
+#
+#    return 0
     
-    #結果の計算及び表示
-    if propellant_name in propellant_name_list:
-        show_result_for_one_type(propellant_name,chamber_pressure)
-    elif propellant_name == "all":
-        show_result_all(chamber_pressure)
-
-    return 0
+    return parser()
 
 #実行部分
 #コマンドライン引数として，燃料の名前と燃焼室圧力をとることができる（デフォルトは"LH2LO2", 20000000）
