@@ -275,32 +275,10 @@ def parser():
     elif propellant_name == "all":
         show_result_all(chamber_pressure, is_tex)
 
-    return 0
 
 def main(argv):
     """ main関数。主にコマンドライン引数を処理する"""
-#    if len(argv) == 2 and argv[1] in propellant_name_list:
-#        propellant_name = argv[1]
-#        chamber_pressure = 20000000
-#    elif len(argv) == 3 and argv[1] in propellant_name_list:
-#        propellant_name = argv[1]
-#        chamber_pressure = int(argv[2])
-#    elif len(argv) == 2 and argv[1] == "all":
-#        propellant_name = argv[1]
-#        chamber_pressure = 20000000
-#    else:
-#        propellant_name = "LH2LO2"
-#        chamber_pressure = 20000000
-#
-#    #結果の計算及び表示
-#    if propellant_name in propellant_name_list:
-#        show_result_for_one_type(propellant_name,chamber_pressure)
-#    elif propellant_name == "all":
-#        show_result_all(chamber_pressure)
-#
-#    return 0
-    
-    return parser()
+    parser()
 
 #実行部分
 #コマンドライン引数として，燃料の名前と燃焼室圧力をとることができる（デフォルトは"LH2LO2", 20000000）
